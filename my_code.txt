@@ -168,3 +168,60 @@ dfs.boxplot(column = 'Consumption' , by= 'Weekday' , figsize = (20 , 10))
 weekly = dfs['Solar'].resample('W').mean()
 plt.rcParams['figure.figsize'] = (20 , 10)
 plt.plot(weekly , marker = 'o')
+
+#-- stocks --
+import pandas as pd
+import matplotlib.pyplot as plt
+df = pd.read_csv('
+/content/sample_data/sp500_index.csv')
+
+
+#handle values 
+print("\nMissing values before cleaning:")
+print(df.isnull().sum())
+# Forward fill missing values (optional, depending on your analysis needs)
+#df.fillna(method='ffill', inplace=True)
+# Drop any rows with remaining NaN values if they exist in critical columns
+df.dropna(inplace=True)
+#print("\nMissing values after cleaning:")
+#print(df.isnull().sum())
+
+#closing prive over time
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12,6))
+plt.plot(df['Close'])
+plt.title("Closing Price Over Time")
+plt.xlabel("Date")
+plt.ylabel("Close Price")
+plt.show()
+
+#volume over time
+plt.figure(figsize=(12, 4))
+plt.plot(df.index, df['Volume'], label='Volume', color='gray')
+plt.title('Trading Volume Over Time')#total num of shares traded over time
+plt.xlabel('Date')
+plt.ylabel('Volume')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+#stock price trends : 
+df[['Open', 'High', 'Low', 'Close']].plot(figsize=(12,6),alpha=0.5)
+plt.title("Stock Price Trends")
+plt.xlabel("Date")
+plt.ylabel("Price")
+plt.show()
+
+#rolling mean 30 days 
+df['Rolling Mean'] = df['Close'].rolling(window=30).mean()
+# Visualize the rolling mean alongside the closing price
+plt.figure(figsize=(12, 6))
+plt.plot(df.index, df['Close'], label='Closing Price', alpha=0.5)
+plt.plot(df.index, df['Rolling Mean'], label='30-Day Rolling Mean', color='red')
+plt.title('Closing Price with 30-Day Rolling Mean')
+plt.xlabel('Date')
+plt.ylabel('Price (USD)')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
