@@ -20,3 +20,91 @@ df.duplicated()
 
 #Check column types
 df.dtypes
+
+df.isnull().any()
+
+#the 10 histplots 
+fig, ax = plt.subplots(5,2, figsize=(9,9))
+sns.histplot(df['longitude'], kde=True, ax=ax[0,0])
+sns.histplot(df['latitude'], kde=True, ax=ax[0,1])
+sns.histplot(df['housing_median_age'], kde=True, ax=ax[1,0])
+sns.histplot(df['total_rooms'], kde=True, ax=ax[1,1])
+sns.histplot(df['total_bedrooms'], kde=True, ax=ax[2,0])
+sns.histplot(df['population'], kde=True, ax=ax[2,1])
+sns.histplot(df['households'], kde=True, ax=ax[3,0])
+sns.histplot(df['households'], kde=True, ax=ax[3,1])
+sns.histplot(df['median_house_value'], kde=True, ax=ax[4,0])
+plt.tight_layout()
+plt.show()
+
+#graph for that ocean thing
+sns.set(rc={'figure.figsize':[20,20]}, font_scale=1.2)
+g = sns.catplot(
+x='ocean_proximity',
+y='median_house_value',
+hue='ocean_proximity',
+legend=False,
+kind='bar',
+data=df,
+palette='Set1',
+height=8,
+aspect=1.5
+)
+g.set_xticklabels(rotation=45)
+plt.tight_layout()
+plt.show()
+
+df = df.dropna(how='all')
+
+#do this for all the keys 
+sns.boxplot(data=df, x='longitude')
+
+#!pip install -U datasets
+#!pip install datasist
+import datasist as ds
+from datasist.structdata import detect_outliers
+outlier = detect_outliers(df, 0, ['total_rooms','total_bedrooms','population','households','median_income','median_house_value'])
+df.drop(outlier, inplace=True)
+sns.boxplot(data=df, x='median_income')
+
+
+#heatmap
+le = LabelEncoder()
+df.ocean_proximity = le.fit_transform(df.ocean_proximity)
+plt.figure(figsize=(20,10), dpi=80)
+sns.heatmap(df.corr(), cmap='Pastel1', annot=True)
+
+#create train and test 
+x = df.drop('median_house_value', axis=1)
+y = df['median_house_value']
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=123)
+
+scaler = StandardScaler()
+scaler.fit(x_train)
+x_train = scaler.fit_transform(x_train)
+x_test = scaler.transform(x_test)
+LR = LinearRegression()
+LR.fit(x_train, y_train)
+print(LR.score(x_train, y_train))
+print(LR.score(x_test, y_test))
+
+#VIF
+XVIF = add_constant(df)
+VIF = pd.Series([variance_inflation_factor(XVIF.values, i) for i in range(XVIF.shape[1])], index=XVIF.columns)
+VIF
+
+#predicted and actual values graph and analysis
+X1 = df.drop(columns=['longitude'])
+x_train, x_test, y_train, y_test = train_test_split(X1, y, test_size=0.3, random_state=123)
+LR = LinearRegression()
+LR.fit(x_train, y_train)
+print(LR.score(x_train, y_train))
+print(LR.score(x_train, y_train))
+lr = LinearRegression()
+lr.fit(x_train, y_train)
+y_pred = lr.predict(x_test)
+evaluate = pd.DataFrame({'Actual': y_test.values.flatten(), 'Predicted': y_pred.flatten()})
+evaluate.head(10)
+evaluate.head(10).plot(kind='bar')
+print(mean_absolute_error(y_test, y_pred))
+print(mean_squared_error(y_test, y_pred))
