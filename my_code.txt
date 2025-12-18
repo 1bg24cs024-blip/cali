@@ -108,3 +108,63 @@ evaluate.head(10)
 evaluate.head(10).plot(kind='bar')
 print(mean_absolute_error(y_test, y_pred))
 print(mean_squared_error(y_test, y_pred))
+
+
+
+
+#----Timeseries analysis------graphs only 
+mpl.rcParams['lines.linewidth'] = 2
+mpl.rcParams['lines.linestyle'] = '--'
+mpl.rcParams['axes.prop_cycle'] = cycler(color = ['r' , 'g' , 'b' , 'y'])
+data = np.random.randn(50)
+plt.plot(data)
+
+
+#plot for consumption 
+import seaborn as sns 
+plt.rcParams['figure.figsize'] = (10 , 10)
+plt.rcParams['figure.dpi'] = 150 
+plt.rcParams['lines.linewidth'] = .4
+dfs['Consumption'].plot()
+
+#plot for day wise : 
+plt.rcParams['figure.figsize'] = (20 , 10)
+dfs['Consumption'].loc['2016-12'].plot(marker = 'o' , linestyle = '--')
+
+# subplots thingie visualiazaiton for each thing 
+axes = dfs[cols_to_plot].plot( marker = '.' ,linestyle = 'None' ,  subplots = True )
+for ax in axes : 
+    ax.set_ylabel("GwH")
+
+#last week of december : 
+dfs['Consumption'].loc['2016-12-23' : '2016-12-30'].plot(linestyle = '--' , marker = 'o', figsize = (12 , 10)
+
+#mondays graph  : 
+monday = dfs.loc['2017-01' : '2017-02']
+monday = monday[monday.index.weekday == 0] 
+plt.figure(figsize=(20 , 20))
+plt.plot(monday.index , monday['Consumption'] , marker = 'o' , linestyle = '--' , linewidth = 2 )
+plt.xlabel('data')
+plt.ylabel('power')
+plt.title("mondays ka gaph")
+plt.show()
+
+
+#boxplots for solar wind and consump
+cols_to_plot = ['Consumption' , 'Solar' , 'Wind'] 
+fig , axes = plt.subplots(3 , 1 , figsize = (6 , 7))
+for name , ax in zip(cols_to_plot  , axes) :
+    sns.boxplot(data = dfs , x ='Month' , y = name , ax=ax) 
+    ax.set_ylabel('GwH')
+    ax.set_title(name) 
+
+plt.tight_layout()
+plt.show()
+
+#boxplot grouped by weekday : 
+dfs.boxplot(column = 'Consumption' , by= 'Weekday' , figsize = (20 , 10))
+
+#sampling weekly : 
+weekly = dfs['Solar'].resample('W').mean()
+plt.rcParams['figure.figsize'] = (20 , 10)
+plt.plot(weekly , marker = 'o')
